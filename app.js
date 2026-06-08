@@ -165,6 +165,14 @@ function formatUSD(value) {
 // Save/Load state functions
 function saveStateToStorage() {
   localStorage.setItem('boa_clone_state_desktop', JSON.stringify(appState));
+  // If Firebase is initialized and user is signed in, schedule a cloud save
+  try {
+    if (window.firebase && window.firebase.auth && window.firebase.auth.currentUser && window.firebase.setDoc) {
+      scheduleFirebaseSave();
+    }
+  } catch (e) {
+    // ignore
+  }
 }
 
 function loadStateFromStorage() {
@@ -180,11 +188,87 @@ function loadStateFromStorage() {
   }
 }
 
+// Firestore sync utilities (debounced saves + init)
+let __firebaseSaveTimer = null;
+function scheduleFirebaseSave() {
+  if (!window.firebase || !window.firebase.auth || !window.firebase.db) return;
+  const { auth, db, doc, setDoc } = window.firebase;
+  if (!auth.currentUser) return;
+  clearTimeout(__firebaseSaveTimer);
+  __firebaseSaveTimer = setTimeout(async () => {
+    try {
+      await setDoc(doc(db, 'users', auth.currentUser.uid), { state: appState }, { merge: true });
+      console.log('Saved appState to Firestore for', auth.currentUser.uid);
+    } catch (err) {
+      console.error('Firestore save failed', err);
+    }
+  }, 800);
+}
+
+function initFirebaseSync() {
+  if (!window.firebase || !window.firebase.auth) return;
+  const { auth, db, onAuthStateChanged, signInAnonymously, doc, getDoc, setDoc, onSnapshot } = window.firebase;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const uid = user.uid;
+      const userRef = doc(db, 'users', uid);
+      try {
+        const snap = await getDoc(userRef);
+        if (snap && snap.exists()) {
+          const serverState = snap.data().state;
+          if (serverState) {
+            appState = serverState;
+            saveStateToStorage();
+            applyAuthState();
+            renderAll();
+            showToast('Loaded account data from cloud.');
+          } else {
+            await setDoc(userRef, { state: appState }, { merge: true });
+            showToast('Initialized cloud state from local data.');
+          }
+        } else {
+          await setDoc(userRef, { state: appState }, { merge: true });
+          showToast('Saved local state to cloud storage.');
+        }
+      } catch (err) {
+        console.error('Firestore load error', err);
+      }
+
+      // Listen for remote changes and merge
+      try {
+        onSnapshot(userRef, (snap) => {
+          if (snap.exists()) {
+            const serverState = snap.data().state;
+            if (serverState && JSON.stringify(serverState) !== JSON.stringify(appState)) {
+              appState = serverState;
+              saveStateToStorage();
+              renderAll();
+              showToast('Account synchronized from cloud.');
+            }
+          }
+        });
+      } catch (e) {
+        console.error('onSnapshot error', e);
+      }
+    } else {
+      // Not signed in -> sign in anonymously
+      try {
+        await signInAnonymously(auth);
+      } catch (err) {
+        console.error('Anonymous sign-in failed', err);
+      }
+    }
+  });
+}
+
 /* ==========================================================================
    INITIALIZATION AND RENDERING
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   loadStateFromStorage();
+  // Initialize Firebase sync (anonymous sign-in + cloud load/save)
+  initFirebaseSync();
   applyAuthState();
   applyTheme();
   renderAll();
