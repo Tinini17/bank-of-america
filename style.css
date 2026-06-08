@@ -763,13 +763,26 @@ body.dark-theme .account-row-link:hover {
     display: flex;
     gap: 8px;
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    padding: 8px 0;
+    padding: 6px 0;
+    align-items: center;
   }
 
   .portal-nav-menu .nav-menu-item {
     white-space: nowrap;
     flex: 0 0 auto;
+  }
+
+  .header-inner-portal {
+    height: auto;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .portal-nav-menu .nav-menu-item {
+    height: auto;
+    padding: 8px 12px;
   }
 
   .header-inner, .login-header, .header-inner-portal {
