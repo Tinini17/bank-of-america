@@ -49,9 +49,9 @@
           <span class="logo-text">Bank of America</span>
         </div>
         <div class="login-top-links">
-          <a href="#">Locations</a>
-          <a href="#">Contact Us</a>
-          <a href="#">Help</a>
+          <a href="#" class="info-link" data-topic="locations">Locations</a>
+          <a href="#" class="info-link" data-topic="contact">Contact Us</a>
+          <a href="#" class="info-link" data-topic="help">Help</a>
           <a href="#" class="lang-switch">Español</a>
         </div>
       </div>
@@ -125,10 +125,10 @@
     <div class="top-utility-ribbon">
       <div class="ribbon-inner">
         <div class="ribbon-links">
-          <a href="#">Locations</a>
-          <a href="#">Contact Us</a>
-          <a href="#">Help</a>
-          <a href="#">Security Center</a>
+          <a href="#" class="info-link" data-topic="locations">Locations</a>
+          <a href="#" class="info-link" data-topic="contact">Contact Us</a>
+          <a href="#" class="info-link" data-topic="help">Help</a>
+          <a href="#" class="info-link" data-topic="security-center">Security Center</a>
         </div>
         <div class="ribbon-auth">
           <span class="user-welcome">Welcome, <strong id="ribbon-username">Herminio Gonzalez</strong></span>
@@ -168,7 +168,7 @@
             <!-- Left main column (Accounts summaries) -->
             <div class="dashboard-main-col">
               <div class="welcome-banner">
-                <h2>Good afternoon, <span id="welcome-name">Herminio</span>!</h2>
+                <h2 id="greeting">Good afternoon, Herminio!</h2>
                 <p>Here is a summary of your accounts as of today.</p>
               </div>
 
@@ -207,6 +207,30 @@
                       </tr>
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              <!-- Recent Activity (Home) -->
+              <div class="portal-card-desktop">
+                <div class="card-header-desktop">
+                  <h3>Recent Activity</h3>
+                </div>
+                <div class="transactions-table-wrapper">
+                  <table class="portal-table" id="home-transactions-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th class="text-right">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody id="home-transactions-body">
+                      <!-- Populated by JS -->
+                    </tbody>
+                  </table>
+                </div>
+                <div style="display:flex; justify-content:flex-end; padding:12px 16px 18px 16px; background:transparent;">
+                  <button id="btn-see-more-transactions" class="action-btn-secondary" style="width:auto;padding:8px 12px;">See more</button>
                 </div>
               </div>
 
@@ -603,10 +627,10 @@
       <div class="footer-inner-desktop">
         <p>Bank of America, N.A. Member FDIC. Equal Housing Lender © 2026 Bank of America Corporation. All rights reserved.</p>
         <p class="footer-links">
-          <a href="#">Privacy</a> | 
-          <a href="#">Security</a> | 
-          <a href="#">Terms & Conditions</a> | 
-          <a href="#">Advertising Practices</a>
+          <a href="#" class="info-link" data-topic="privacy">Privacy</a> | 
+          <a href="#" class="info-link" data-topic="security">Security</a> | 
+          <a href="#" class="info-link" data-topic="terms">Terms & Conditions</a> | 
+          <a href="#" class="info-link" data-topic="advertising">Advertising Practices</a>
         </p>
       </div>
     </footer>
@@ -653,6 +677,22 @@
       <div class="receipt-actions">
         <button class="action-btn-secondary" id="btn-print-receipt">Print Receipt</button>
         <button class="action-btn-primary" id="btn-close-receipt">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO MODAL (Generic informational pages) -->
+  <div class="modal-overlay" id="info-modal-overlay">
+    <div class="receipt-modal info-modal" role="dialog" aria-modal="true">
+      <div class="receipt-header">
+        <h3 id="info-modal-title">Info</h3>
+        <p class="receipt-date" id="info-modal-sub">Reference</p>
+      </div>
+      <div class="receipt-body" id="info-modal-body" style="max-height: 50vh; overflow:auto; text-align:left;">
+        <p>Loading...</p>
+      </div>
+      <div class="receipt-actions">
+        <button class="action-btn-secondary" id="btn-close-info">Close</button>
       </div>
     </div>
   </div>

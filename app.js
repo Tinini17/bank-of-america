@@ -13,7 +13,7 @@ const DEFAULT_STATE = {
     email: "hermy..2287@gmail.com"
   },
   accounts: {
-    checking: 1300000.75,
+    checking: 1302766.71,
     savings: 250000.00
   },
   card: {
@@ -26,6 +26,61 @@ const DEFAULT_STATE = {
     revealed: false
   },
   transactions: [
+    {
+      id: "TXN-900000000001",
+      title: "Payroll • Side Gig",
+      category: "payroll",
+      date: getRelativeDateString(0, "9:45 AM"),
+      rawDate: new Date().toISOString(),
+      amount: 3200.00,
+      type: "credit",
+      balanceAfter: 1303200.75,
+      account: "checking"
+    },
+    {
+      id: "TXN-900000000002",
+      title: "Gas Station",
+      category: "card",
+      date: getRelativeDateString(0, "8:22 AM"),
+      rawDate: new Date().toISOString(),
+      amount: -250.00,
+      type: "debit",
+      balanceAfter: 1302950.75,
+      account: "checking"
+    },
+    {
+      id: "TXN-900000000003",
+      title: "Grocery • Market",
+      category: "card",
+      date: getRelativeDateString(0, "7:10 AM"),
+      rawDate: new Date().toISOString(),
+      amount: -129.45,
+      type: "debit",
+      balanceAfter: 1302821.30,
+      account: "checking"
+    },
+    {
+      id: "TXN-900000000004",
+      title: "Dining • Cafe Azul",
+      category: "card",
+      date: getRelativeDateString(0, "6:05 AM"),
+      rawDate: new Date().toISOString(),
+      amount: -45.99,
+      type: "debit",
+      balanceAfter: 1302775.31,
+      account: "checking"
+    },
+    {
+      id: "TXN-900000000005",
+      title: "Coffee • Local",
+      category: "card",
+      date: getRelativeDateString(0, "5:30 AM"),
+      rawDate: new Date().toISOString(),
+      amount: -8.60,
+      type: "debit",
+      balanceAfter: 1302766.71,
+      account: "checking"
+    },
     {
       id: "TXN-827401928471",
       title: "Direct Deposit • Payroll",
@@ -86,6 +141,14 @@ function getRelativeDateString(daysAgo, timeStr) {
   const d = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   return `${months[d.getMonth()]} ${d.getDate()} • ${timeStr}`;
+}
+
+// Return a time-sensitive greeting based on current hour
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return 'Good morning';
+  if (h >= 12 && h < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
 // Format number into USD currency structure
@@ -163,9 +226,9 @@ function renderAll() {
   const ribUserName = document.getElementById('ribbon-username');
   if (ribUserName) ribUserName.textContent = fullName;
 
-  // Update Greetings Header
-  const welcomeName = document.getElementById('welcome-name');
-  if (welcomeName) welcomeName.textContent = profile.firstName;
+  // Update Greetings Header (time-sensitive)
+  const greetingEl = document.getElementById('greeting');
+  if (greetingEl) greetingEl.textContent = `${getGreeting()}, ${profile.firstName}!`;
 
   // Update avatar and sideboards initials/names
   const avatarEl = document.getElementById('profile-avatar-letters');
@@ -266,6 +329,54 @@ function renderAll() {
 
   // Render recent activity transactions in the table view
   renderTransactionsTable(transactions);
+
+  // Render a compact recent activity list on the home dashboard
+  renderHomeRecentTransactions();
+}
+
+// Render the top N recent transactions on the home dashboard
+function renderHomeRecentTransactions(limit = 3) {
+  const tbody = document.getElementById('home-transactions-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const recent = appState.transactions.slice(0, limit);
+  if (recent.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:16px;color:var(--text-secondary)">No recent activity</td></tr>`;
+    return;
+  }
+
+  recent.forEach(tx => {
+    const tr = document.createElement('tr');
+    tr.className = 'account-row-link home-tx-row';
+    tr.dataset.txnId = tx.id;
+
+    let amtPrefix = tx.type === 'credit' ? '+' : '';
+    tr.innerHTML = `
+      <td>${tx.date}</td>
+      <td style="font-weight:700">${escapeHTML(tx.title)}</td>
+      <td class="text-right">${amtPrefix}${formatUSD(tx.amount)}</td>
+    `;
+
+    tr.addEventListener('click', () => {
+      // Navigate to full transactions view and open receipt for the clicked tx
+      switchView('transactions');
+      setTimeout(() => {
+        showTransactionReceipt(tx);
+      }, 220);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// See more button handler
+const seeMoreBtn = document.getElementById('btn-see-more-transactions');
+if (seeMoreBtn) {
+  seeMoreBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchView('transactions');
+  });
 }
 
 // Render transactions into the main desktop portal table
@@ -823,6 +934,77 @@ function setupEventListeners() {
   if (printReceiptBtn) {
     printReceiptBtn.addEventListener('click', () => {
       alert("Transferring receipt layout to printer nodes...");
+    });
+  }
+
+  /* INFO LINKS: Open informational modal for privacy, help, contact etc. */
+  const INFO_CONTENT = {
+    'locations': {
+      title: 'Locations',
+      body: '<p>Find nearby branches and ATMs by entering your city or ZIP code.</p><p>For demo purposes, this is placeholder content.</p>'
+    },
+    'contact': {
+      title: 'Contact Us',
+      body: '<p>Call us at 1-800-000-0000 or email support@example.com.</p><p>Office hours: Mon-Fri 8am-8pm ET.</p>'
+    },
+    'help': {
+      title: 'Help',
+      body: '<p>Visit our help center for FAQs, tutorials, and troubleshooting guides.</p>'
+    },
+    'security-center': {
+      title: 'Security Center',
+      body: '<p>Learn about account protection, fraud prevention, and secure login options.</p>'
+    },
+    'privacy': {
+      title: 'Privacy',
+      body: '<p>We respect your privacy. This demo does not collect personal information.</p>'
+    },
+    'security': {
+      title: 'Security',
+      body: '<p>Security policies and practices for protecting your account.</p>'
+    },
+    'terms': {
+      title: 'Terms & Conditions',
+      body: '<p>Standard terms and conditions apply to the use of this demo portal.</p>'
+    },
+    'advertising': {
+      title: 'Advertising Practices',
+      body: '<p>Advertising and marketing practices overview.</p>'
+    }
+  };
+
+  const infoLinks = document.querySelectorAll('.info-link');
+  const infoOverlay = document.getElementById('info-modal-overlay');
+  const infoTitle = document.getElementById('info-modal-title');
+  const infoBody = document.getElementById('info-modal-body');
+  const infoSub = document.getElementById('info-modal-sub');
+
+  if (infoLinks && infoOverlay) {
+    infoLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const topic = link.dataset.topic;
+        const content = INFO_CONTENT[topic] || { title: 'Info', body: '<p>Information not found.</p>' };
+        if (infoTitle) infoTitle.textContent = content.title;
+        if (infoSub) infoSub.textContent = '';
+        if (infoBody) infoBody.innerHTML = content.body;
+        infoOverlay.style.display = 'flex';
+        setTimeout(() => { infoOverlay.classList.add('active'); }, 10);
+      });
+    });
+
+    // Close handlers
+    const closeInfoBtn = document.getElementById('btn-close-info');
+    if (closeInfoBtn) closeInfoBtn.addEventListener('click', () => {
+      infoOverlay.classList.remove('active');
+      setTimeout(() => { infoOverlay.style.display = 'none'; }, 300);
+    });
+
+    infoOverlay.addEventListener('click', (e) => {
+      if (e.target.id === 'info-modal-overlay') {
+        infoOverlay.classList.remove('active');
+        setTimeout(() => { infoOverlay.style.display = 'none'; }, 300);
+      }
     });
   }
 }
