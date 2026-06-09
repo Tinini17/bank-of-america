@@ -84,10 +84,12 @@ body {
   min-height: 100vh;
   color: var(--text-primary);
   transition: background 0.3s ease, color 0.3s ease;
-  overflow-x: hidden;
+  /* allow horizontal scrolling when content cannot fit the container */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-html { overflow-x: hidden; }
+html { overflow-x: auto; }
 
 /* Auth state display controls */
 body.logged-out #login-container {
@@ -1669,6 +1671,45 @@ body.dark-theme .account-row-link:hover {
     font-size: 14px;
   }
 }
+
+/* Keep contents inside their container and allow inner horizontal scroll when necessary */
+.header-inner,
+.header-inner-portal,
+.ribbon-inner,
+.login-main,
+.portal-main-content,
+.portal-grid,
+.login-grid,
+.portal-card-desktop,
+.small-card-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Allow flex children to shrink to prevent overflow */
+.header-inner > *,
+.header-inner-portal > *,
+.ribbon-inner > *,
+.ribbon-auth,
+.ribbon-links,
+.portal-nav-menu,
+.login-top-links,
+.profile-summary-header,
+.profile-summary-text {
+  min-width: 0;
+}
+
+/* Ensure user names and profile text wrap instead of overflowing */
+#ribbon-username,
+.profile-summary-text h4,
+.profile-summary-text p {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* If text still overflows, allow horizontal scroll on the specific header areas */
+.ribbon-inner, .header-inner-portal { overflow-x: auto; }
 
 .pin-box-desktop {
   width: 70px !important;
