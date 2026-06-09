@@ -852,6 +852,37 @@ body.dark-theme .account-row-link:hover {
   .accounts-table-wrapper, .transactions-table-wrapper {
     overflow-x: auto;
   }
+
+  /* Profile & settings: make form fields stack and cards fluid on mobile */
+  .small-card-container {
+    max-width: 100%;
+    padding: 16px;
+    margin: 0;
+  }
+
+  .form-row-desktop {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .portal-card-desktop {
+    overflow: visible;
+  }
+
+  .profile-summary-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .profile-summary-text h4 { font-size: 16px; }
+
+  .profile-details-list { gap: 8px; }
+
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 }
 
 /* Very small screens adjustments */
